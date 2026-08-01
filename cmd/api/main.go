@@ -28,10 +28,12 @@ func main() {
 	}
 
 	userRepo := postgres.NewUserRepository(db)
+	productRepo := postgres.NewProductRepository(db)
 
 	authUsecase := usecase.NewAuthUsecase(userRepo, cfg)
+	productUseCase := usecase.NewProductUsecase(productRepo)
 
-	router := http.NewRouter(authUsecase, cfg)
+	router := http.NewRouter(authUsecase, productUseCase, cfg)
 
 	log.Printf("Server running on :%s", cfg.Port)
 	log.Fatal(router.Run(":" + cfg.Port))

@@ -11,6 +11,7 @@ import (
 
 func NewRouter(
 	auth *usecase.AuthUsecase,
+	product *usecase.ProductUsecase,
 	cfg *config.Config,
 ) *gin.Engine {
 
@@ -18,6 +19,7 @@ func NewRouter(
 
 	authHandler := handler.NewAuthHandler(auth)
 	profileHandler := handler.NewProfileHandler()
+	productHandler := handler.NewProductHandler(product)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -37,6 +39,16 @@ func NewRouter(
 		profileGroup.Use(middleware.JWT(cfg))
 		{
 			profileGroup.GET("", profileHandler.Me)
+		}
+
+		productGroup := api.Group("/products")
+		productGroup.Use(middleware.JWT(cfg))
+		{
+			productGroup.POST("", productHandler.Create)
+			productGroup.GET("", productHandler.FindAll)
+			productGroup.GET("/:id", productHandler.FindByID)
+			productGroup.PUT("/:id", productHandler.Update)
+			productGroup.DELETE("/:id", productHandler.Delete)
 		}
 	}
 
